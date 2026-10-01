@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  name         String
+  email        String?   @unique
+  passwordHash String?   @map("password_hash")
+  phone        String    @unique
+  role         Role      @default(USER)
+  otpCode      String?   @map("otp_code")
+  otpExpiry    DateTime? @map("otp_expiry")
+  bookings     Booking[]
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+model Bus {
+  id           Int     @id @default(autoincrement())
+  plateNumber  String  @unique @map("plate_number")
+  operatorName String  @map("operator_name")
+  totalSeats   Int     @map("total_seats")
+  busType      String  @default("Yutong") @map("bus_type")
+  model        String  @default("") 
+  year         Int     @default(2020)
+  amenities    String[] @default([])
+  photoUrl     String?  @map("photo_url")
+  trips        Trip[]
+
+  @@map("buses")
+}
+
+model Route {
+  id          Int    @id @default(autoincrement())
+  origin      String
+  destination String
+  distanceKm  Int    @map("distance_km")
+  trips       Trip[]
+
+  @@unique([origin, destination])
+  @@map("routes")
+}
+
+model Trip {
+  id            Int       @id @default(autoincrement())
+  routeId       Int       @map("route_id")
+  busId         Int       @map("bus_id")
+  departureTime String    @map("departure_time")
+  date          String
+  price         Decimal   @db.Decimal(10, 2)
+  route         Route     @relation(fields: [routeId], references: [id])
+  bus           Bus       @relation(fields: [busId], references: [id])
+  seats         Seat[]
+  bookings      Booking[]
+
+  @@map("trips")
+}
+
+model Seat {
+  id         Int        @id @default(autoincrement())
+  tripId     Int        @map("trip_id")
+  seatNumber Int        @map("seat_number")
+  status     SeatStatus @default(AVAILABLE)
+  trip       Trip       @relation(fields: [tripId], references: [id])
+
+  @@unique([tripId, seatNumber])
+  @@map("seats")
+}
+
+model Booking {
+  id             Int           @id @default(autoincrement())
+  userId         Int           @map("user_id")
+  tripId         Int           @map("trip_id")
+  seatIds        Int[]         @map("seat_ids")
+  totalPrice     Decimal       @map("total_price") @db.Decimal(10, 2)
+  paymentStatus  PaymentStatus @default(PENDING) @map("payment_status")
+  paymentMethod  String?       @map("payment_method")
+  stripeIntentId String?       @map("stripe_intent_id")
+  localTxRef     String?       @map("local_tx_ref")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  user           User          @relation(fields: [userId], references: [id])
+  trip           Trip          @relation(fields: [tripId], references: [id])
+
+  @@map("bookings")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum SeatStatus {
+  AVAILABLE
+  HELD
+  TAKEN
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}

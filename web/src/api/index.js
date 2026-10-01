@@ -1,0 +1,50 @@
+const BASE = "/api";
+
+function getToken() {
+  return localStorage.getItem("token");
+}
+
+async function request(path, options = {}) {
+  const headers = { "Content-Type": "application/json", ...options.headers };
+  const token = getToken();
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const res = await fetch(`${BASE}${path}`, { ...options, headers });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error ?? "Request failed");
+  return data;
+}
+
+export const api = {
+  // Auth
+  sendOtp:  (body) => request("/auth/send-otp",    { method: "POST", body: JSON.stringify(body) }),
+  verifyOtp:(body) => request("/auth/verify-otp",  { method: "POST", body: JSON.stringify(body) }),
+
+  // Search
+  searchRoutes: (from, to) => request(`/routes?from=${from}&to=${to}`),
+  getTrips: (routeId, date) => request(`/trips?routeId=${routeId}&date=${date}`),
+  getSeats: (tripId) => request(`/trips/${tripId}/seats`),
+
+  // Bookings
+  createBooking: (body) => request("/bookings", { method: "POST", body: JSON.stringify(body) }),
+  getMyBookings: () => request("/bookings/me"),
+  getBooking: (id) => request(`/bookings/${id}`),
+
+  mockConfirm: (bookingId) => request(`/payments/mock-confirm/${bookingId}`, { method: "POST" }),
+  createPaymentIntent: (bookingId) =>
+    request("/payments/create-intent", { method: "POST", body: JSON.stringify({ bookingId }) }),
+  initiateChapa: (bookingId) =>
+    request("/payments/chapa/initiate", { method: "POST", body: JSON.stringify({ bookingId }) }),
+  initiateTelebirr: (bookingId) =>
+    request("/payments/telebirr/initiate", { method: "POST", body: JSON.stringify({ bookingId }) }),
+  initiateCbe: (bookingId) =>
+    request("/payments/cbe/initiate", { method: "POST", body: JSON.stringify({ bookingId }) }),
+
+  // Admin
+  adminGetBuses: () => request("/admin/buses"),
+  adminGetRoutes: () => request("/admin/routes"),
+  adminCreateBus: (body) => request("/admin/buses", { method: "POST", body: JSON.stringify(body) }),
+  adminCreateRoute: (body) => request("/admin/routes", { method: "POST", body: JSON.stringify(body) }),
+  adminCreateTrip: (body) => request("/admin/trips", { method: "POST", body: JSON.stringify(body) }),
+  adminGetBookings: () => request("/admin/bookings"),
+};
