@@ -10,12 +10,6 @@ import { errorHandler, notFound } from "./middleware/errorHandler.js";
 
 const app = express();
 
-// Stripe webhook needs raw body — must come before express.json()
-app.use("/api/payments/webhook", express.raw({ type: "application/json" }), (req, _res, next) => {
-  req.rawBody = req.body;
-  next();
-});
-
 app.use(cors());
 app.use(express.json());
 

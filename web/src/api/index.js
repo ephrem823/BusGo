@@ -1,4 +1,4 @@
-const BASE = "/api";
+const BASE = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : "/api";
 
 function getToken() {
   return localStorage.getItem("token");
@@ -30,14 +30,8 @@ export const api = {
   getBooking: (id) => request(`/bookings/${id}`),
 
   mockConfirm: (bookingId) => request(`/payments/mock-confirm/${bookingId}`, { method: "POST" }),
-  createPaymentIntent: (bookingId) =>
-    request("/payments/create-intent", { method: "POST", body: JSON.stringify({ bookingId }) }),
-  initiateChapa: (bookingId) =>
-    request("/payments/chapa/initiate", { method: "POST", body: JSON.stringify({ bookingId }) }),
   initiateTelebirr: (bookingId) =>
     request("/payments/telebirr/initiate", { method: "POST", body: JSON.stringify({ bookingId }) }),
-  initiateCbe: (bookingId) =>
-    request("/payments/cbe/initiate", { method: "POST", body: JSON.stringify({ bookingId }) }),
 
   // Admin
   adminGetBuses: () => request("/admin/buses"),
