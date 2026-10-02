@@ -27,7 +27,7 @@ function SelectField({ label, children, ...props }) {
 
 function Msg({ text }) {
   if (!text) return null;
-  const ok = text.startsWith("✅");
+  const ok = text.startsWith("success");
   return (
     <div className={`rounded-xl px-4 py-3 text-sm font-medium ${ok ? "bg-green-50 text-green-700 border border-green-100" : "bg-red-50 text-red-600 border border-red-100"}`}>
       {text}
@@ -132,7 +132,7 @@ export default function AdminPage() {
         price: Number(form.price),
       });
 
-      setMsg("✅ Trip created! Seats auto-generated.");
+      setMsg(" Trip created! Seats auto-generated.");
       setForm((f) => ({ ...f, date: "", departureTime: "", price: "" }));
     } catch (e) {
       setMsg(`❌ ${e.message}`);

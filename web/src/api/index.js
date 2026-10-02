@@ -17,8 +17,7 @@ async function request(path, options = {}) {
 
 export const api = {
   // Auth
-  sendOtp:  (body) => request("/auth/send-otp",    { method: "POST", body: JSON.stringify(body) }),
-  verifyOtp:(body) => request("/auth/verify-otp",  { method: "POST", body: JSON.stringify(body) }),
+  login: (body) => request("/auth/login", { method: "POST", body: JSON.stringify(body) }),
 
   // Search
   searchRoutes: (from, to) => request(`/routes?from=${from}&to=${to}`),

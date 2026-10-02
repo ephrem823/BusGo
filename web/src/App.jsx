@@ -6,7 +6,7 @@ import ResultsPage from "./pages/ResultsPage";
 import SeatsPage from "./pages/SeatsPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import ConfirmationPage from "./pages/ConfirmationPage";
-import { LoginPage, RegisterPage } from "./pages/AuthPages";
+import { LoginPage } from "./pages/AuthPages";
 import MyBookingsPage from "./pages/MyBookingsPage";
 import AdminPage from "./pages/AdminPage";
 
@@ -22,7 +22,6 @@ export default function App() {
           <Route path="/checkout/:bookingId" element={<CheckoutPage />} />
           <Route path="/confirmation/:bookingId" element={<ConfirmationPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
           <Route path="/my-bookings" element={<MyBookingsPage />} />
           <Route path="/admin" element={<AdminPage />} />
         </Routes>

@@ -7,38 +7,17 @@ import { api } from "../api";
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const METHODS = [
-  {
-    id: "CHAPA",
-    label: "Chapa",
-    desc: "TeleBirr, CBE Birr, Amole, Card & more",
-    icon: "🇪🇹",
-    recommended: true,
-  },
-  {
-    id: "TELEBIRR",
-    label: "TeleBirr",
-    desc: "Pay directly via TeleBirr",
-    icon: "📱",
-  },
-  {
-    id: "CBE",
-    label: "CBE Birr",
-    desc: "Commercial Bank of Ethiopia",
-    icon: "🏦",
-  },
-  {
-    id: "STRIPE",
-    label: "Card",
-    desc: "International debit / credit card",
-    icon: "💳",
-  },
+  { id: "CHAPA",    label: "Chapa",    desc: "TeleBirr, CBE Birr, Amole, Card & more", icon: "🇪🇹", recommended: true },
+  { id: "TELEBIRR", label: "TeleBirr", desc: "Pay directly via TeleBirr",               icon: "📱" },
+  { id: "CBE",      label: "CBE Birr", desc: "Commercial Bank of Ethiopia",              icon: "🏦" },
+  { id: "STRIPE",   label: "Card",     desc: "International debit / credit card",        icon: "💳" },
 ];
 
 function StripeForm({ bookingId, totalPrice }) {
-  const stripe = useStripe();
+  const stripe   = useStripe();
   const elements = useElements();
   const [paying, setPaying] = useState(false);
-  const [error, setError] = useState("");
+  const [error,  setError]  = useState("");
 
   const handlePay = async (e) => {
     e.preventDefault();
@@ -56,7 +35,7 @@ function StripeForm({ bookingId, totalPrice }) {
   return (
     <form onSubmit={handlePay} className="space-y-4">
       <PaymentElement />
-      {error && <p className="text-red-500 text-sm">⚠️ {error}</p>}
+      {error && <p className="text-red-400 text-sm">⚠️ {error}</p>}
       <button type="submit" className="btn-primary w-full py-3" disabled={paying || !stripe}>
         {paying ? <Spinner /> : `Pay ETB ${Number(totalPrice).toLocaleString()}`}
       </button>
@@ -66,7 +45,7 @@ function StripeForm({ bookingId, totalPrice }) {
 
 function RedirectPayButton({ label, icon, onPay, totalPrice }) {
   const [paying, setPaying] = useState(false);
-  const [error, setError] = useState("");
+  const [error,  setError]  = useState("");
 
   const handlePay = async () => {
     setPaying(true);
@@ -83,7 +62,7 @@ function RedirectPayButton({ label, icon, onPay, totalPrice }) {
   return (
     <div className="space-y-3">
       {error && (
-        <div className="bg-red-50 border border-red-100 text-red-600 rounded-xl px-4 py-2.5 text-sm">
+        <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-2.5 text-sm">
           ⚠️ {error}
         </div>
       )}
@@ -97,7 +76,7 @@ function RedirectPayButton({ label, icon, onPay, totalPrice }) {
 function Spinner() {
   return (
     <span className="flex items-center justify-center gap-2">
-      <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
       Redirecting…
     </span>
   );
@@ -105,11 +84,11 @@ function Spinner() {
 
 export default function CheckoutPage() {
   const { bookingId } = useParams();
-  const navigate = useNavigate();
-  const [method, setMethod] = useState("CHAPA");
+  const navigate      = useNavigate();
+  const [method, setMethod]           = useState("CHAPA");
   const [clientSecret, setClientSecret] = useState("");
-  const [booking, setBooking] = useState(null);
-  const [error, setError] = useState("");
+  const [booking, setBooking]         = useState(null);
+  const [error,   setError]           = useState("");
   const [loadingStripe, setLoadingStripe] = useState(false);
 
   useEffect(() => {
@@ -128,38 +107,38 @@ export default function CheckoutPage() {
   if (error) return (
     <div className="max-w-md mx-auto px-4 py-16 text-center">
       <div className="text-5xl mb-4">⚠️</div>
-      <p className="text-red-500">{error}</p>
+      <p className="text-red-400">{error}</p>
       <button onClick={() => navigate(-1)} className="btn-outline mt-4">Go Back</button>
     </div>
   );
 
   if (!booking) return (
     <div className="min-h-[60vh] flex items-center justify-center">
-      <div className="w-10 h-10 border-4 border-brand/20 border-t-brand rounded-full animate-spin" />
+      <div className="w-10 h-10 border-2 border-violet-500/20 border-t-violet-500 rounded-full animate-spin" />
     </div>
   );
 
   return (
     <div className="max-w-md mx-auto px-4 py-8 fade-up">
-      <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-gray-400 hover:text-brand mb-6 transition-colors">
+      <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm text-gray-500 hover:text-violet-400 mb-6 transition-colors">
         ← Back
       </button>
 
-      <h2 className="text-2xl font-extrabold text-gray-900 mb-1">Complete Payment</h2>
-      <p className="text-gray-400 text-sm mb-6">Choose how you'd like to pay</p>
+      <h2 className="text-2xl font-black text-white mb-1">Complete Payment</h2>
+      <p className="text-gray-500 text-sm mb-6">Choose how you'd like to pay</p>
 
       {/* Booking summary */}
-      <div className="glass p-4 mb-6 flex items-center justify-between gap-4">
-        <div className="text-sm text-gray-600 space-y-0.5">
-          <p className="font-semibold text-gray-900">
+      <div className="glass p-4 mb-6 flex items-center justify-between gap-4 border border-white/10">
+        <div className="text-sm text-gray-400 space-y-0.5">
+          <p className="font-bold text-white">
             {booking.trip.route.origin} → {booking.trip.route.destination}
           </p>
           <p>{booking.trip.date} · {booking.trip.departureTime}</p>
           <p>{booking.seatIds.length} seat{booking.seatIds.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="text-right flex-shrink-0">
-          <p className="text-xs text-gray-400">Total</p>
-          <p className="text-2xl font-extrabold text-brand">
+          <p className="text-xs text-gray-600">Total</p>
+          <p className="text-2xl font-black bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
             ETB {Number(booking.totalPrice).toLocaleString()}
           </p>
         </div>
@@ -173,71 +152,58 @@ export default function CheckoutPage() {
             onClick={() => setMethod(m.id)}
             className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 transition-all text-left ${
               method === m.id
-                ? "border-brand bg-brand/5 shadow-sm"
-                : "border-gray-200 bg-white hover:border-gray-300"
+                ? "border-violet-500/50 bg-violet-500/10"
+                : "border-white/8 bg-white/3 hover:border-white/15"
             }`}
+            style={method === m.id ? { boxShadow: "0 0 20px rgba(139,92,246,0.1)" } : {}}
           >
             <span className="text-2xl">{m.icon}</span>
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-gray-900 text-sm">{m.label}</span>
+                <span className="font-semibold text-gray-100 text-sm">{m.label}</span>
                 {m.recommended && (
-                  <span className="badge bg-brand/10 text-brand text-[10px]">Recommended</span>
+                  <span className="badge bg-violet-500/15 text-violet-400 border border-violet-500/20 text-[10px]">
+                    Recommended
+                  </span>
                 )}
               </div>
-              <p className="text-xs text-gray-400 mt-0.5">{m.desc}</p>
+              <p className="text-xs text-gray-600 mt-0.5">{m.desc}</p>
             </div>
             <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 transition-all ${
-              method === m.id ? "border-brand bg-brand" : "border-gray-300"
+              method === m.id ? "border-violet-500 bg-violet-500" : "border-gray-600"
             }`}>
-              {method === m.id && (
-                <div className="w-full h-full rounded-full bg-white scale-50" />
-              )}
+              {method === m.id && <div className="w-full h-full rounded-full bg-white scale-50" />}
             </div>
           </button>
         ))}
       </div>
 
       {/* Payment form */}
-      <div className="card">
+      <div className="card border border-white/10">
         {method === "CHAPA" && (
-          <RedirectPayButton
-            label="Chapa"
-            icon="🇪🇹"
-            totalPrice={booking.totalPrice}
-            onPay={() => api.initiateChapa(bookingId)}
-          />
+          <RedirectPayButton label="Chapa" icon="🇪🇹" totalPrice={booking.totalPrice}
+            onPay={() => api.initiateChapa(bookingId)} />
         )}
         {method === "TELEBIRR" && (
-          <RedirectPayButton
-            label="TeleBirr"
-            icon="📱"
-            totalPrice={booking.totalPrice}
-            onPay={() => api.initiateTelebirr(bookingId)}
-          />
+          <RedirectPayButton label="TeleBirr" icon="📱" totalPrice={booking.totalPrice}
+            onPay={() => api.initiateTelebirr(bookingId)} />
         )}
         {method === "CBE" && (
-          <RedirectPayButton
-            label="CBE Birr"
-            icon="🏦"
-            totalPrice={booking.totalPrice}
-            onPay={() => api.initiateCbe(bookingId)}
-          />
+          <RedirectPayButton label="CBE Birr" icon="🏦" totalPrice={booking.totalPrice}
+            onPay={() => api.initiateCbe(bookingId)} />
         )}
         {method === "STRIPE" && (
           loadingStripe
-            ? <div className="flex justify-center py-4"><div className="w-6 h-6 border-2 border-brand/20 border-t-brand rounded-full animate-spin" /></div>
+            ? <div className="flex justify-center py-4"><div className="w-6 h-6 border-2 border-violet-500/20 border-t-violet-500 rounded-full animate-spin" /></div>
             : clientSecret
-              ? <Elements stripe={stripePromise} options={{ clientSecret }}>
+              ? <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: "night" } }}>
                   <StripeForm bookingId={bookingId} totalPrice={booking.totalPrice} />
                 </Elements>
               : null
         )}
       </div>
 
-      <p className="text-center text-xs text-gray-400 mt-4">
-        🔒 Payments are secure and encrypted
-      </p>
+      <p className="text-center text-xs text-gray-600 mt-4">🔒 Payments are secure and encrypted</p>
     </div>
   );
 }

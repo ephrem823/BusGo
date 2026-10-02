@@ -31,7 +31,7 @@ app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT ?? 3001;
-app.listen(PORT, () => console.log(`🚌 BusGo API running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(` BusGo API running on http://localhost:${PORT}`));
 
 // Keep Neon connection warm — ping on startup + every 3 minutes
 import { PrismaClient } from "@prisma/client";
