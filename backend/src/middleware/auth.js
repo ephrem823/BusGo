@@ -6,6 +6,7 @@ export function requireAuth(req, res, next) {
     return res.status(401).json({ error: "Missing or invalid token" });
   }
   try {
+    if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET is not configured");
     req.user = jwt.verify(header.slice(7), process.env.JWT_SECRET);
     next();
   } catch {

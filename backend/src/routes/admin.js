@@ -1,10 +1,9 @@
 import { Router } from "express";
-import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 import { requireAdmin } from "../middleware/auth.js";
+import prisma from "../lib/prisma.js";
 
 const router = Router();
-const prisma = new PrismaClient();
 
 router.use(requireAdmin);
 
@@ -12,8 +11,8 @@ router.use(requireAdmin);
 router.post("/buses", async (req, res, next) => {
   try {
     const data = z.object({
-      plateNumber: z.string(),
-      operatorName: z.string(),
+      plateNumber: z.string().trim().min(2).max(50),
+      operatorName: z.string().trim().min(2).max(100),
       totalSeats: z.number().int().min(1).max(100),
     }).parse(req.body);
     const bus = await prisma.bus.create({ data });
@@ -25,40 +24,14 @@ router.post("/buses", async (req, res, next) => {
 router.post("/routes", async (req, res, next) => {
   try {
     const data = z.object({
-      origin: z.string(),
-      destination: z.string(),
+      origin: z.string().trim().min(2).max(100),
+      destination: z.string().trim().min(2).max(100),
       distanceKm: z.number().int().positive(),
+    }).refine((d) => d.origin.toLowerCase() !== d.destination.toLowerCase(), {
+      message: "Origin and destination cannot be identical",
     }).parse(req.body);
     const route = await prisma.route.create({ data });
     res.status(201).json(route);
-  } catch (err) { next(err); }
-});
-
-// POST /api/admin/trips
-router.post("/trips", async (req, res, next) => {
-  try {
-    const data = z.object({
-      routeId: z.number().int(),
-      busId: z.number().int(),
-      departureTime: z.string(),
-      date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-      price: z.number().positive(),
-    }).parse(req.body);
-
-    const bus = await prisma.bus.findUnique({ where: { id: data.busId } });
-    if (!bus) return res.status(404).json({ error: "Bus not found" });
-
-    const trip = await prisma.$transaction(async (tx) => {
-      const t = await tx.trip.create({ data });
-      await tx.seat.createMany({
-        data: Array.from({ length: bus.totalSeats }, (_, i) => ({
-          tripId: t.id,
-          seatNumber: i + 1,
-        })),
-      });
-      return t;
-    });
-    res.status(201).json(trip);
   } catch (err) { next(err); }
 });
 
@@ -83,12 +56,28 @@ router.get("/bookings", async (req, res, next) => {
   try {
     const bookings = await prisma.booking.findMany({
       include: {
-        user: { select: { name: true, email: true } },
-        trip: { include: { route: true } },
+        user: { select: { id: true, name: true, phone: true, email: true } },
+        trip: { include: { route: true, bus: true } },
       },
       orderBy: { createdAt: "desc" },
     });
     res.json(bookings);
+  } catch (err) { next(err); }
+});
+
+router.patch("/users/:id/role", async (req, res, next) => {
+  try {
+    const id = z.coerce.number().int().positive().parse(req.params.id);
+    const { role } = z.object({ role: z.enum(["USER", "ADMIN"]) }).strict().parse(req.body);
+    if (id === req.user.id && role !== "ADMIN") {
+      return res.status(409).json({ error: "You cannot remove your own admin role" });
+    }
+    const user = await prisma.user.update({
+      where: { id },
+      data: { role },
+      select: { id: true, name: true, phone: true, role: true },
+    });
+    res.json(user);
   } catch (err) { next(err); }
 });
 

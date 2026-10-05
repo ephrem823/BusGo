@@ -6,20 +6,42 @@ import { useAuth } from "../api/AuthContext";
 function buildLayout(seats) {
   const by = {};
   seats.forEach((s) => (by[s.seatNumber] = s));
-  return [
-    { type: "normal", left: [by[1],  by[2]],  right: [by[3],  by[4]]  },
-    { type: "normal", left: [by[5],  by[6]],  right: [by[7],  by[8]]  },
-    { type: "normal", left: [by[9],  by[10]], right: [by[11], by[12]] },
-    { type: "normal", left: [by[13], by[14]], right: [by[15], by[16]] },
-    { type: "normal", left: [by[17], by[18]], right: [by[19], by[20]] },
-    { type: "door",   left: [by[21], by[22]], right: null               },
-    { type: "normal", left: [by[23], by[24]], right: [by[25], by[26]] },
-    { type: "normal", left: [by[27], by[28]], right: [by[29], by[30]] },
-    { type: "normal", left: [by[31], by[32]], right: [by[33], by[34]] },
-    { type: "normal", left: [by[35], by[36]], right: [by[37], by[38]] },
-    { type: "normal", left: [by[39], by[40]], right: [by[41], by[42]] },
-    { type: "back",   seats: [by[43], by[44], by[45], by[46], by[47]] },
-  ];
+  if (seats.length === 47) {
+    return [
+      { type: "normal", left: [by[1],  by[2]],  right: [by[3],  by[4]]  },
+      { type: "normal", left: [by[5],  by[6]],  right: [by[7],  by[8]]  },
+      { type: "normal", left: [by[9],  by[10]], right: [by[11], by[12]] },
+      { type: "normal", left: [by[13], by[14]], right: [by[15], by[16]] },
+      { type: "normal", left: [by[17], by[18]], right: [by[19], by[20]] },
+      { type: "door",   left: [by[21], by[22]], right: null               },
+      { type: "normal", left: [by[23], by[24]], right: [by[25], by[26]] },
+      { type: "normal", left: [by[27], by[28]], right: [by[29], by[30]] },
+      { type: "normal", left: [by[31], by[32]], right: [by[33], by[34]] },
+      { type: "normal", left: [by[35], by[36]], right: [by[37], by[38]] },
+      { type: "normal", left: [by[39], by[40]], right: [by[41], by[42]] },
+      { type: "back",   seats: [by[43], by[44], by[45], by[46], by[47]] },
+    ];
+  }
+
+  // Dynamic layout for arbitrary fleet seat counts
+  const sorted = [...seats].sort((a, b) => a.seatNumber - b.seatNumber);
+  const rows = [];
+  let i = 0;
+  while (i < sorted.length) {
+    const remaining = sorted.length - i;
+    if (remaining <= 5 && remaining >= 3 && i > 0) {
+      rows.push({ type: "back", seats: sorted.slice(i) });
+      break;
+    }
+    const chunk = sorted.slice(i, i + 4);
+    rows.push({
+      type: "normal",
+      left: [chunk[0], chunk[1]].filter(Boolean),
+      right: [chunk[2], chunk[3]].filter(Boolean),
+    });
+    i += 4;
+  }
+  return rows;
 }
 
 function SeatBtn({ seat, selected, onToggle }) {

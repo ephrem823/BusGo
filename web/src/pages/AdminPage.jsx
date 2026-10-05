@@ -376,12 +376,12 @@ export default function AdminPage() {
           {bookings.map((b) => (
             <div key={b.id} className="card flex items-center justify-between gap-4">
               <div className="flex-1">
-                <p className="font-bold text-gray-900">{b.user.name}</p>
-                <p className="text-sm text-gray-400">{b.user.email}</p>
+                <p className="font-bold text-gray-900">{b.user?.name || "Passenger"}</p>
+                <p className="text-sm text-gray-400">{b.user?.phone || b.user?.email || "No contact info"}</p>
                 <p className="text-sm text-gray-500 mt-1">
-                  {b.trip.route.origin} → {b.trip.route.destination} · {b.trip.date}
+                  {b.trip?.route?.origin} → {b.trip?.route?.destination} · {b.trip?.date} {b.trip?.bus?.operatorName ? `(${b.trip.bus.operatorName})` : ""}
                 </p>
-                <p className="text-xs text-gray-400">{b.seatIds.length} seat{b.seatIds.length !== 1 ? "s" : ""}</p>
+                <p className="text-xs text-gray-400">{b.seatIds?.length || 0} seat{(b.seatIds?.length !== 1) ? "s" : ""}</p>
               </div>
               <div className="text-right flex-shrink-0">
                 <p className="font-extrabold text-brand">ETB {Number(b.totalPrice).toLocaleString()}</p>

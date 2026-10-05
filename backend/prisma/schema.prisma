@@ -16,6 +16,8 @@ model User {
   role         Role      @default(USER)
   otpCode      String?   @map("otp_code")
   otpExpiry    DateTime? @map("otp_expiry")
+  otpSentAt    DateTime? @map("otp_sent_at")
+  otpAttempts  Int       @default(0) @map("otp_attempts")
   bookings     Booking[]
   createdAt    DateTime  @default(now()) @map("created_at")
 
@@ -84,6 +86,8 @@ model Booking {
   paymentMethod  String?       @map("payment_method")
   stripeIntentId String?       @map("stripe_intent_id")
   localTxRef     String?       @map("local_tx_ref")
+  refundReason   String?       @map("refund_reason")
+  refundProviderId String?     @map("refund_provider_id")
   createdAt      DateTime      @default(now()) @map("created_at")
   user           User          @relation(fields: [userId], references: [id])
   trip           Trip          @relation(fields: [tripId], references: [id])

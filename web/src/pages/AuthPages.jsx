@@ -9,6 +9,8 @@ export function LoginPage() {
   const navigate  = useNavigate();
   const [name,    setName]    = useState("");
   const [phone,   setPhone]   = useState("");
+  const [code,    setCode]    = useState("");
+  const [step,    setStep]    = useState("phone");
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
 
@@ -17,9 +19,27 @@ export function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      const res = await api.login({ name, phone });
-      login(res.token, res.user);
-      navigate("/");
+      if (step === "phone") {
+        await api.requestOtp({ name, phone });
+        setStep("code");
+      } else {
+        const res = await api.verifyOtp({ phone, code });
+        login(res.token, res.user);
+        navigate("/");
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resendCode = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      await api.requestOtp({ name, phone });
+      setCode("");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -40,12 +60,14 @@ export function LoginPage() {
             <BiftuLogo size={80} />
           </div>
           <h2 className="text-2xl font-black text-white">Sign in to Biftu Bus</h2>
-          <p className="text-gray-500 text-sm mt-1">Enter your name and phone to continue</p>
+          <p className="text-gray-500 text-sm mt-1">
+            {step === "phone" ? "Verify your phone number to continue" : `Enter the code sent to ${phone}`}
+          </p>
         </div>
 
         <div className="glass p-6 shadow-2xl shadow-violet-500/10 border border-white/10">
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
+            {step === "phone" && <div>
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
                 Full Name
               </label>
@@ -57,7 +79,7 @@ export function LoginPage() {
                 required
                 minLength={2}
               />
-            </div>
+            </div>}
 
             <div>
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
@@ -74,9 +96,28 @@ export function LoginPage() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   required
+                  disabled={step === "code"}
                 />
               </div>
             </div>
+
+            {step === "code" && <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
+                Verification Code
+              </label>
+              <input
+                className="input"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                placeholder="6-digit code"
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                required
+                minLength={6}
+                maxLength={6}
+              />
+            </div>}
 
             {error && (
               <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-2.5 text-sm">
@@ -90,16 +131,30 @@ export function LoginPage() {
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Signing in…
                 </span>
-              ) : "Sign In →"}
+              ) : step === "phone" ? "Send verification code →" : "Verify and sign in →"}
             </button>
+            {step === "code" && (
+              <div className="flex justify-between text-xs">
+                <button
+                  type="button"
+                  className="text-gray-400 hover:text-white"
+                  onClick={() => { setStep("phone"); setCode(""); setError(""); }}
+                >
+                  Change phone number
+                </button>
+                <button type="button" className="text-violet-400 hover:text-violet-300"
+                  onClick={resendCode} disabled={loading}>
+                  Resend code
+                </button>
+              </div>
+            )}
           </form>
         </div>
 
         <p className="text-center text-xs text-gray-600 mt-4">
-          New user? Just enter your name — your account is created automatically.
+          New users can create an account by verifying their phone number.
         </p>
       </div>
     </div>
   );
 }
-

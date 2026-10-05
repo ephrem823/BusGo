@@ -6,3 +6,8 @@ backend/node_modules/
 backend/.env
 web/node_modules/
 web/.env
+web/dist/
+dist/
+.DS_Store
+*.log
+
